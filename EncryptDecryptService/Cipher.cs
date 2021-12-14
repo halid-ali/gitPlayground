@@ -39,9 +39,26 @@ namespace EncryptDecryptService
             return Convert.ToBase64String(textEncryptBuffer.CombineBuffer());
         }
 
+        /// <summary>
+        /// Decrypts the given text by using the given password
+        /// </summary>
+        /// <param name="encryptedText">Text to be decrypted</param>
+        /// <param name="password">Decryption password</param>
+        /// <returns>Decrypted text in string format</returns>
         public string DecryptText(string encryptedText, string password)
         {
-            throw new NotImplementedException();
+            var encryptedCombinedBuffer = Convert.FromBase64String(encryptedText);
+            var textDecryptBuffer = new TextDecryptBuffer(encryptedCombinedBuffer);
+            var parsedEncryptedBuffer = textDecryptBuffer.ParseBuffer(password);
+
+            if (parsedEncryptedBuffer.Length == 0) return string.Empty;
+
+            InitBuffer = textDecryptBuffer.DecryptedInitBuffer;
+            SaltBuffer = textDecryptBuffer.DecryptedSaltBuffer;
+
+            var decryptedBuffer = EncryptDecryptText(parsedEncryptedBuffer, password, false);
+
+            return Encoding.UTF8.GetString(decryptedBuffer, 0, decryptedBuffer.Length);
         }
 
         private byte[] EncryptDecryptText(byte[] textBuffer, string password, bool isEncrypt)
