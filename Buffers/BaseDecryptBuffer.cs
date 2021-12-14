@@ -61,7 +61,7 @@ namespace EncryptDecryptService.Buffers
 
         private string GetParsedPassword(byte[] passwordBuffer)
         {
-            return Encoding.UTF8.GetString(passwordBuffer);
+            return Encoding.UTF8.GetString(passwordBuffer, 0, passwordBuffer.Length);
         }
     }
 }
