@@ -57,5 +57,20 @@ namespace EncryptDecryptService.Buffers
             //write encrypted buffer
             Buffer.BlockCopy(EncryptedBuffer, 0, CombinedBuffer, position, EncryptedBuffer.Length);
         }
+
+        protected virtual void PreconditionCheck()
+        {
+            if (PasswordBuffer == null)
+                throw new ArgumentException($"Corrupted buffer: {nameof(PasswordBuffer)}");
+
+            if (InitBuffer == null)
+                throw new ArgumentException($"Corrupted buffer: {nameof(InitBuffer)}");
+
+            if (SaltBuffer == null)
+                throw new ArgumentException($"Corrupted buffer: {nameof(SaltBuffer)}");
+
+            if (EncryptedBuffer == null)
+                throw new ArgumentException($"Corrupted buffer: {nameof(EncryptedBuffer)}");
+        }
     }
 }
