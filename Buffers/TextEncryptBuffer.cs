@@ -11,11 +11,11 @@ namespace EncryptDecryptService.Buffers
             PreconditionCheck();
 
             var combinedBufferLength = 0;
-            combinedBufferLength += sizeof(int);
+            combinedBufferLength += Constants.Int32Length;
             combinedBufferLength += PasswordBuffer.Length;
             combinedBufferLength += InitBuffer.Length;
             combinedBufferLength += SaltBuffer.Length;
-            combinedBufferLength += sizeof(int);
+            combinedBufferLength += Constants.Int32Length;
             combinedBufferLength += EncryptedBuffer.Length;
 
             var position = 0;
