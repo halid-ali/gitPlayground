@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 namespace EncryptDecryptService.Buffers
 {
@@ -28,6 +29,8 @@ namespace EncryptDecryptService.Buffers
             Buffer.BlockCopy(CombinedBuffer, position, passwordBuffer, 0, passwordBuffer.Length);
             position += passwordBuffer.Length;
 
+            if (!CheckPassword(password, GetParsedPassword(passwordBuffer))) return new byte[0];
+
             //read init buffer
             DecryptedInitBuffer = new byte[Constants.InitSaltLength];
             Buffer.BlockCopy(CombinedBuffer, position, DecryptedInitBuffer, 0, DecryptedInitBuffer.Length);
@@ -49,6 +52,16 @@ namespace EncryptDecryptService.Buffers
             Buffer.BlockCopy(CombinedBuffer, position, encryptedBuffer, 0, encryptedBuffer.Length);
 
             return encryptedBuffer;
+        }
+
+        private bool CheckPassword(string actualPassword, string parsedPassword)
+        {
+            return actualPassword == parsedPassword;
+        }
+
+        private string GetParsedPassword(byte[] passwordBuffer)
+        {
+            return Encoding.UTF8.GetString(passwordBuffer);
         }
     }
 }
