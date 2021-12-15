@@ -76,8 +76,7 @@ namespace EncryptDecryptService
                     return EncryptBuffer(cryptoTransform, textBuffer);
                 }
 
-                //TODO: implement DecryptBuffer() method and call it from here
-                throw new NotImplementedException();
+                return DecryptBuffer(cryptoTransform, textBuffer);
             }
         }
 
@@ -95,10 +94,32 @@ namespace EncryptDecryptService
             }
         }
 
+        private byte[] DecryptBuffer(ICryptoTransform cryptoTransform, byte[] textBuffer)
+        {
+            byte[] decryptBuffer = new byte[textBuffer.Length];
+            using (var memoryStream = new MemoryStream(textBuffer))
+            {
+                using (var cryptoStream = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read))
+                {
+                    int readLength = ReadCryptoStream(cryptoStream, decryptBuffer);
+
+                    var decryptedBuffer = new byte[readLength];
+                    Buffer.BlockCopy(decryptBuffer, 0, decryptedBuffer, 0, readLength);
+
+                    return decryptedBuffer;
+                }
+            }
+        }
+
         private void WriteCryptoStream(CryptoStream cryptoStream, byte[] textBuffer)
         {
             cryptoStream.Write(textBuffer, 0, textBuffer.Length);
             cryptoStream.FlushFinalBlock();
+        }
+
+        private int ReadCryptoStream(CryptoStream cryptoStream, byte[] decryptBuffer)
+        {
+            return cryptoStream.Read(decryptBuffer, 0, decryptBuffer.Length);
         }
 
         private ICryptoTransform CreateCryptoTransform(RijndaelManaged rijndael, byte[] passwordBuffer, bool isEnCrypted)
