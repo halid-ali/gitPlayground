@@ -39,9 +39,26 @@ namespace EncryptDecryptService
             return Convert.ToBase64String(textEncryptBuffer.CombineBuffer());
         }
 
+        /// <summary>
+        /// Decrypts the given text by using the given password
+        /// </summary>
+        /// <param name="encryptedText">Text to be decrypted</param>
+        /// <param name="password">Decryption password</param>
+        /// <returns>Decrypted text in string format</returns>
         public string DecryptText(string encryptedText, string password)
         {
-            throw new NotImplementedException();
+            var encryptedCombinedBuffer = Convert.FromBase64String(encryptedText);
+            var textDecryptBuffer = new TextDecryptBuffer(encryptedCombinedBuffer);
+            var parsedEncryptedBuffer = textDecryptBuffer.ParseBuffer(password);
+
+            if (parsedEncryptedBuffer.Length == 0) return string.Empty;
+
+            InitBuffer = textDecryptBuffer.DecryptedInitBuffer;
+            SaltBuffer = textDecryptBuffer.DecryptedSaltBuffer;
+
+            var decryptedBuffer = EncryptDecryptText(parsedEncryptedBuffer, password, false);
+
+            return Encoding.UTF8.GetString(decryptedBuffer, 0, decryptedBuffer.Length);
         }
 
         private byte[] EncryptDecryptText(byte[] textBuffer, string password, bool isEncrypt)
@@ -59,8 +76,7 @@ namespace EncryptDecryptService
                     return EncryptBuffer(cryptoTransform, textBuffer);
                 }
 
-                //TODO: implement DecryptBuffer() method and call it from here
-                throw new NotImplementedException();
+                return DecryptBuffer(cryptoTransform, textBuffer);
             }
         }
 
@@ -78,10 +94,32 @@ namespace EncryptDecryptService
             }
         }
 
+        private byte[] DecryptBuffer(ICryptoTransform cryptoTransform, byte[] textBuffer)
+        {
+            byte[] decryptBuffer = new byte[textBuffer.Length];
+            using (var memoryStream = new MemoryStream(textBuffer))
+            {
+                using (var cryptoStream = new CryptoStream(memoryStream, cryptoTransform, CryptoStreamMode.Read))
+                {
+                    int readLength = ReadCryptoStream(cryptoStream, decryptBuffer);
+
+                    var decryptedBuffer = new byte[readLength];
+                    Buffer.BlockCopy(decryptBuffer, 0, decryptedBuffer, 0, readLength);
+
+                    return decryptedBuffer;
+                }
+            }
+        }
+
         private void WriteCryptoStream(CryptoStream cryptoStream, byte[] textBuffer)
         {
             cryptoStream.Write(textBuffer, 0, textBuffer.Length);
             cryptoStream.FlushFinalBlock();
+        }
+
+        private int ReadCryptoStream(CryptoStream cryptoStream, byte[] decryptBuffer)
+        {
+            return cryptoStream.Read(decryptBuffer, 0, decryptBuffer.Length);
         }
 
         private ICryptoTransform CreateCryptoTransform(RijndaelManaged rijndael, byte[] passwordBuffer, bool isEnCrypted)
