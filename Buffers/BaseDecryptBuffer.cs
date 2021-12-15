@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using EncryptDecryptService.Utils;
 
 namespace EncryptDecryptService.Buffers
 {
@@ -29,7 +30,12 @@ namespace EncryptDecryptService.Buffers
             Buffer.BlockCopy(CombinedBuffer, position, passwordBuffer, 0, passwordBuffer.Length);
             position += passwordBuffer.Length;
 
-            if (!CheckPassword(password, GetParsedPassword(passwordBuffer))) return new byte[0];
+            //return error message in case of wrong password
+            if (!CheckPassword(password, GetParsedPassword(passwordBuffer)))
+            {
+                ErrorHandler.WrongPassword();
+                return null;
+            }
 
             //read init buffer
             DecryptedInitBuffer = new byte[Constants.InitSaltLength];

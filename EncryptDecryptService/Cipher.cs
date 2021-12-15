@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using EncryptDecryptService.Buffers;
+using EncryptDecryptService.Utils;
 
 namespace EncryptDecryptService
 {
@@ -51,7 +52,7 @@ namespace EncryptDecryptService
             var textDecryptBuffer = new TextDecryptBuffer(encryptedCombinedBuffer);
             var parsedEncryptedBuffer = textDecryptBuffer.ParseBuffer(password);
 
-            if (parsedEncryptedBuffer.Length == 0) return string.Empty;
+            if (ErrorHandler.IsErrorOccurred) return ErrorHandler.ErrorLog;
 
             InitBuffer = textDecryptBuffer.DecryptedInitBuffer;
             SaltBuffer = textDecryptBuffer.DecryptedSaltBuffer;
